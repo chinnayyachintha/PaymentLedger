@@ -1,8 +1,8 @@
 resource "aws_lambda_function" "persist_payment_ledger" {
-  function_name = "persist_payment_ledger"
+  function_name = "Persist-${var.dynamodb_table_name}" # Update to match the actual function name
 
   role    = aws_iam_role.paymentledger_role.arn
-  handler = "paymentledger.persist_payment_ledger"  # Update to match the actual function name
+  handler = "paymentledger.persist_payment_ledger" # Update to match the actual function name
   runtime = "python3.8"
 
   filename         = "paymentledger.zip"
@@ -16,8 +16,8 @@ resource "aws_lambda_function" "persist_payment_ledger" {
   }
 
   vpc_config {
-    subnet_ids         = [data.aws_subnet.private_subnet.id]  # Reference the private subnet
-    security_group_ids = [data.aws_security_group.private_sg.id]  # Reference the security group
+    subnet_ids         = [data.aws_subnet.private_subnet.id]     # Reference the private subnet
+    security_group_ids = [data.aws_security_group.private_sg.id] # Reference the security group
   }
 
   timeout = 60

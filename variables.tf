@@ -2,5 +2,10 @@
 variable "aws_region" {
   type        = string
   description = "AWS Region to deploy resources"
-  default     = "ca-central-1"
+}
+
+# dynamodb_table_name
+variable "dynamodb_table_name" {
+  type        = string
+  description = "Name of the DynamoDB table for Payment Ledger"
 }

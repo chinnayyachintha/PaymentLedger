@@ -6,6 +6,6 @@ resource "aws_kms_key" "payment_key" {
 }
 
 resource "aws_kms_alias" "payment_key_alias" {
-  name          = "alias/paymentledger-key"
+  name          = "alias/${var.dynamodb_table_name}-payment-key"
   target_key_id = aws_kms_key.payment_key.key_id
 }

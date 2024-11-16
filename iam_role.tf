@@ -1,7 +1,7 @@
 # IAM role will grant the necessary permissions to interact with KMS and DynamoDB
 
 resource "aws_iam_role" "paymentledger_role" {
-  name = "paymentledger-role"
+  name = "${var.dynamodb_table_name}-role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -18,7 +18,7 @@ resource "aws_iam_role" "paymentledger_role" {
 }
 
 resource "aws_iam_role_policy" "paymentledger_policy" {
-  name = "paymentledger-policy"
+  name = "${var.dynamodb_table_name}-policy"
   role = aws_iam_role.paymentledger_role.id
 
   policy = jsonencode({
