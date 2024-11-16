@@ -11,7 +11,7 @@ dynamodb = boto3.resource('dynamodb')
 kms = boto3.client('kms')
 
 # Retrieve environment variables
-kms_key_arn = os.environ['PAYMENT_CRYPTOGRAPHY_KEY_ARN']
+kms_key_arn = os.environ['PAYMENT_KMS_KEY_ARN']
 table_name = os.environ['DYNAMODB_TABLE_NAME']
 
 # Get DynamoDB table reference
