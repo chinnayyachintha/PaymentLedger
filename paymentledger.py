@@ -2,6 +2,7 @@
 # Stores the tokenized SecureToken in the DynamoDB table (PaymentLedger).
 
 import boto3
+import base64
 import json
 import os
 from datetime import datetime, timezone
@@ -23,7 +24,8 @@ def encrypt_token(token):
         KeyId=kms_key_arn,
         Plaintext=token
     )
-    return response['CiphertextBlob']
+    # Encode the binary CiphertextBlob as a Base64 string
+    return base64.b64encode(response['CiphertextBlob']).decode('utf-8')
 
 # Lambda function to persist payment
 def persist_payment_ledger(event, context):
@@ -33,10 +35,10 @@ def persist_payment_ledger(event, context):
     amount = event['Amount']
     processor_id = event['ProcessorID']
     status = event['Status']
-    
-    # Encrypt the SecureToken using KMS
+
+    # Encrypt the SecureToken using KMS and encode as Base64 string
     encrypted_token = encrypt_token(secure_token)
-    
+
     # Get current UTC time as a timezone-aware object
     timestamp = datetime.now(timezone.utc).isoformat()
 
