@@ -1,5 +1,4 @@
-# IAM role will grant the necessary permissions to interact with KMS and DynamoDB
-
+# IAM Role for payment ledger processing
 resource "aws_iam_role" "paymentledger_role" {
   name = "${var.dynamodb_table_name}-role"
 
@@ -17,6 +16,7 @@ resource "aws_iam_role" "paymentledger_role" {
   })
 }
 
+# IAM Role Policy for permissions related to KMS, DynamoDB, CloudWatch Logs, EC2 network interfaces, and Backup operations
 resource "aws_iam_role_policy" "paymentledger_policy" {
   name = "${var.dynamodb_table_name}-policy"
   role = aws_iam_role.paymentledger_role.id
@@ -24,16 +24,17 @@ resource "aws_iam_role_policy" "paymentledger_policy" {
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
-      # Permissions for KMS
+      # Permissions for KMS: Encrypt and Decrypt with the specified KMS key
       {
         Effect = "Allow"
         Action = [
           "kms:Encrypt",
           "kms:Decrypt"
         ]
-        Resource = "arn:aws:kms:${var.aws_region}:${data.aws_caller_identity.current.account_id}:key/${aws_kms_key.payment_key.id}"
+        Resource = "arn:aws:kms:${var.aws_region}:${data.aws_caller_identity.current.account_id}:key/${aws_kms_key.payment_ledger_key.id}"
       },
-      # Permissions for DynamoDB
+
+      # Permissions for DynamoDB: Put, Get, Query, Update, and Scan the specified table
       {
         Effect = "Allow"
         Action = [
@@ -45,7 +46,8 @@ resource "aws_iam_role_policy" "paymentledger_policy" {
         ]
         Resource = "arn:aws:dynamodb:${var.aws_region}:${data.aws_caller_identity.current.account_id}:table/${aws_dynamodb_table.payment_ledger.name}"
       },
-      # Permissions for Logs
+      
+      # Permissions for CloudWatch Logs: Create log group, stream, and put log events
       {
         Effect = "Allow"
         Action = [
@@ -55,7 +57,8 @@ resource "aws_iam_role_policy" "paymentledger_policy" {
         ]
         Resource = "arn:aws:logs:${var.aws_region}:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/*"
       },
-      # Permissions to interact with EC2 network interfaces (needed for Lambda in VPC)
+
+      # Permissions to interact with EC2 network interfaces (required if Lambda function is inside a VPC)
       {
         Effect = "Allow"
         Action = [
@@ -64,6 +67,29 @@ resource "aws_iam_role_policy" "paymentledger_policy" {
           "ec2:DeleteNetworkInterface"
         ]
         Resource = "*"
+      },
+
+      # Backup Permissions for DynamoDB: List, Describe, Create, and Delete backups
+      {
+        Effect = "Allow"
+        Action = [
+          "dynamodb:ListTables",
+          "dynamodb:DescribeTable",
+          "dynamodb:ListStreams",
+          "dynamodb:DescribeStream"
+        ]
+        Resource = "*"
+      },
+
+      {
+        Effect = "Allow"
+        Action = [
+          "dynamodb:CreateBackup",
+          "dynamodb:DeleteBackup",
+          "dynamodb:DescribeBackup",
+          "dynamodb:ListBackups"
+        ]
+        Resource = "arn:aws:dynamodb:${var.aws_region}:${data.aws_caller_identity.current.account_id}:table/${aws_dynamodb_table.payment_ledger.name}"
       }
     ]
   })

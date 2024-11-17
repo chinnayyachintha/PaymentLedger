@@ -10,7 +10,7 @@ resource "aws_lambda_function" "persist_payment_ledger" {
 
   environment {
     variables = {
-      PAYMENT_KMS_KEY_ARN = aws_kms_key.payment_key.arn
+      PAYMENT_KMS_KEY_ARN = aws_kms_key.payment_ledger_key.arn
       DYNAMODB_TABLE_NAME = aws_dynamodb_table.payment_ledger.name
     }
   }
